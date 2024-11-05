@@ -12,8 +12,6 @@ class TextedCatViewController: UIViewController {
     
     @IBOutlet weak var imageView: UIImageView!
     
-    @IBOutlet weak var catText: UILabel!
-    
     @IBOutlet weak var descriptionLabel: UILabel!
     
     @IBOutlet weak var textField: UITextField!
@@ -26,13 +24,28 @@ class TextedCatViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        catText.text = ""
         descriptionLabel.text = "Generate your cat"
         activityIndicator.layer.opacity = 0
     }
     
-    private func downloadCat() {
-        guard let url = URL(string: "https://cataas.com/cat") else {
+    @IBAction func didTapButton(_ sender: Any) {
+        if let text = textField.text, !text.isEmpty {
+            descriptionLabel.text = "Loading..."
+            activityIndicator.layer.opacity = 1
+            button.isEnabled.toggle()
+            textField.isEnabled.toggle()
+            descriptionLabel.text = "Start downloading cat"
+            downloadCat(text: text)
+        } else {
+            let alert = UIAlertController(title: "Error", message: "Please enter text", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+    }
+    
+    private func downloadCat(text: String) {
+        guard let url = URL(string: "https://cataas.com/cat/says/\(text)") else {
             return
         }
         
@@ -46,30 +59,13 @@ class TextedCatViewController: UIViewController {
                 self?.descriptionLabel.text = "Cat was downloaded"
                 self?.activityIndicator.layer.opacity = 0
                 self?.button.isEnabled.toggle()
-                self?.catText.text = self?.textField.text ?? ""
+                
                 self?.textField.text = ""
                 self?.textField.isEnabled.toggle()
             }
         }
         
         task.resume()
-    }
-    
-    
-    @IBAction func didTapButton(_ sender: Any) {
-        if textField.text?.isEmpty ?? false {
-            let alert = UIAlertController(title: "Error", message: "Please enter text", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
-            return
-        }
-        catText.text = ""
-        descriptionLabel.text = "Loading..."
-        activityIndicator.layer.opacity = 1
-        button.isEnabled.toggle()
-        textField.isEnabled.toggle()
-        descriptionLabel.text = "Start downloading cat"
-        downloadCat()
     }
 }
 
